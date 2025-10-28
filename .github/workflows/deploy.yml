@@ -13,10 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 👇 Add this step (important)
-      - name: Change directory
-        run: cd my-react-app-Test
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -24,11 +20,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: my-react-app-Test   # 👈 Add this line
+        working-directory: my-react-app-Test
 
       - name: Build React app
         run: npm run build
-        working-directory: my-react-app-Test   # 👈 Add this line too
+        working-directory: my-react-app-Test
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -38,10 +34,5 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Deploy to S3
-        uses: jakejarvis/s3-sync-action@main 
-        with:
-          args: --acl public-read --delete
-        env:
-          AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          SOURCE_DIR: my-react-app-Test/build   # 👈 Update path to build folder
+        run: |
+          aws s3 sync my-react-app-Test/build s3://${{ secrets.S3_BUCKET }} --delete --acl public-read
